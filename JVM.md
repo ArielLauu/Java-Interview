@@ -2,6 +2,8 @@
 
 ---
 
+[TOC]
+
 #### 1 JVM如何判断对象死亡
 
 ##### 1.1 引用计数器
@@ -194,13 +196,13 @@ JVM在执行Java程序的过程中，会把它管理的内存划分为多个数�
 
 JVM内置了三个重要的ClassLoader，除了BootstrapClassLoader，其他类加载器均由Java实现，且全部继承自java.lang.ClassLoader：
 
-1. **BootstrapClassLoader（启动类加载器）**：最顶层的加载类，由C++实现，负责加载 `%JAVA_HOME/llib` 目录下的jar包和类，或者被 `-XBootclasspath` 参数指定的路径中的所有类
+1. **BootstrapClassLoader（启动类加载器）**：最顶层的加载类，由C++实现，负责加载 `%JAVA_HOME/lib` 目录下的jar包和类，或者被 `-XBootclasspath` 参数指定的路径中的所有类
 2. **ExtensionClassLoader（扩展类加载器）**：主要负责加载目录 `%JRE_HOME/lib/ext` 目录下的jar包和类，或者被 `java.ext.dirs` 系统变量所制定的路径下的包
 3. **AppClassLoader（应用程序类加载器）**：面向用户的加载器，负责加载当前应用`classpath`下的所有jar包和类
 
 **双亲委派模型**
 
-双亲委派模型即类在加载的时候，系统会首先**判断当前类是否被加载过**。已经被加载的类会直接返回，否则才会尝试加载。加载的时候，首先**把该请求委派给该父类加载器的 `LoadClass()` 处理**，因此所有的请求最终都会汇总到顶层的**启动类加载器 `BootstrapClassLoader`** 中。当父类加载器无法处理时，才由自己来处理。当父类加载器为Null是，会使用启动类加载器 `BootstrapClassLoader` 作为父类加载器
+双亲委派模型即类在加载的时候，系统会首先**判断当前类是否被加载过**。已经被加载的类会直接返回，否则才会尝试加载。加载的时候，首先**把该请求委派给该父类加载器的 `LoadClass()` 处理**，因此所有的请求最终都会汇总到顶层的**启动类加载器 `BootstrapClassLoader`** 中。当父类加载器无法处理时，才由自己来处理。当父类加载器为Null时，会使用启动类加载器 `BootstrapClassLoader` 作为父类加载器
 
 <img src="JVM.assets/68747470733a2f2f6d792d626c6f672d746f2d7573652e6f73732d636e2d6265696a696e672e616c6979756e63732e636f6d2f323031392d362f636c6173736c6f616465725f5750532545352539422542452545372538392538372e706e67" alt="ClassLoader" style="zoom:67%;" />
 
@@ -257,7 +259,7 @@ protected Class<?> findClass(String name) throws ClassNotFoundException {
 }
 ```
 
-==打破双亲委托机制原理，以及常用场景== （待整理）
+==打破双亲委派机制原理，以及常用场景== （待整理）
 
 常用场景：Tomcat https://www.jianshu.com/p/7706a42ba200
 
@@ -378,7 +380,7 @@ JVM 能够记录下问题发生时系统的部分运行状态，并将其存储�
 
 ##### 6.1 生成堆转储
 
-1. `jmap`：打印堆转储到指定的文件位置，该用具打包在JDK中，在bin文件夹中可以找到。调用方法为 `jmap -dump:live,format=b,file=<file-path> <pid>`。其中`live`指定只转储堆中的活动对象
+1. `jmap`：打印堆转储到指定的文件位置，该工具打包在JDK中，在bin文件夹中可以找到。调用方法为 `jmap -dump:live,format=b,file=<file-path> <pid>`。其中`live`指定只转储堆中的活动对象
 2. `HeapDumpOnOutOfMemoryError`：设置`“ -XX：+ HeapDumpOnOutOfMemoryError”`系统属性后，JVM将在JVM遇到OutOfMemoryError时捕获堆转储。`-XX:HeapDumpPath=<file-path>`设置存储位置
 
 ##### 6.2 堆转储文件分析
