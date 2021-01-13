@@ -37,7 +37,7 @@
 
 **1 基本数据类型及其包装类**
 
-![img](Java.assets/20190226164706730.png)
+![img](https://typora-image-ariellauu.oss-cn-beijing.aliyuncs.com/uPic/20190226164706730.png)
 
 **2 区别**
 
@@ -89,7 +89,17 @@ https://www.runoob.com/java/java-generics.html
   - **RuntimeException **表示JVM在运行期间可能出现的异常，如数组下标越界`（ArrayIndexOutBoundException）`。这类异常一般由程序逻辑错误引起，可以选择捕获处理，也可以不处理。
   - **IOException **是编译器要求必须处理的异常，否则编译不通过。
 
-<img src="Java.assets/exception-architechture-java.png" alt="exception-architechture-java" style="zoom: 50%;" />
+<img src="https://typora-image-ariellauu.oss-cn-beijing.aliyuncs.com/uPic/exception-architechture-java.png" alt="exception-architechture-java" style="zoom: 50%;" />
+
+---
+
+#### Java如何实现跨平台
+
+- JVM是实现跨平台的桥梁。
+
+- JVM不认识 `.java` 文件，需要将其编译为JVM认识的 `.class` 字节码（二进制）文件，然后由不同平台中的JVM，将字节码文件翻译成特定平台下的机器码，然后运行。
+
+- 所以虽然Java是平台无关的，但是JVM是平台有关的，通过JVM的不同实现方式，实现了跨平台的功能。
 
 ---
 
@@ -128,7 +138,7 @@ https://www.runoob.com/java/java-generics.html
 
 底层结构为**数组+链表**组合，即**链表散列**。key的hashcode经过扰动函数处理后，得到hash值，然后通过 **(n-1)&hash** （n为数组长度）判断当前元素存放的位置。若当前位置存在元素的话，判断该元素与要存入的元素hash和key值是否相同，相同直接覆盖，不同则通过拉链法解决冲突。注意链表的插入是以**头插法**进行的。
 
-<img src="Java.assets/hashmap.png" alt="hashmap" style="zoom: 67%;" />
+<img src="https://typora-image-ariellauu.oss-cn-beijing.aliyuncs.com/uPic/hashmap.png" alt="hashmap" style="zoom: 67%;" />
 
 **解释(n-1)&hash**：
 
@@ -138,7 +148,7 @@ HashMap的长度为2的幂次方时，等式**hash % n =（n-1）& hash** 成立
 
 与之前相比，在解决哈希冲突时，当链表长度大于阈值（默认8），将链表转化为红黑树，以减少搜索时间。但是在转化为红黑树前，会进行判断，若当前数组长度小于64，则会先扩容，而不是转换为红黑树。
 
-<img src="Java.assets/687474703a2f2f6d792d626c6f672d746f2d7573652e6f73732d636e2d6265696a696e672e616c6979756e63732e636f6d2f31382d382d32322f36373233333736342e6a7067" alt="JDK1.8之后的HashMap底层数据结构" style="zoom: 50%;" />
+<img src="https://typora-image-ariellauu.oss-cn-beijing.aliyuncs.com/uPic/687474703a2f2f6d792d626c6f672d746f2d7573652e6f73732d636e2d6265696a696e672e616c6979756e63732e636f6d2f31382d382d32322f36373233333736342e6a7067.jpg" alt="JDK1.8之后的HashMap底层数据结构" style="zoom: 50%;" />
 
 ---
 
@@ -271,7 +281,7 @@ put方法通过调用 **putVal()** 进行添加元素
 5. 若遍历链表没有相同的节点，则在**链表尾部插入**。然后**判断是否转化为红黑树**。当链表长度达到8时，如果**`table`为空或者长度小于`64`**，则**`resize`**。否则转化为红黑树
 6. 最后，**`modCount++`，如果`++size>threshold`，则扩容**
 
-![img](Java.assets/1684605-20190522150831073-641494049.png)
+![img](https://typora-image-ariellauu.oss-cn-beijing.aliyuncs.com/uPic/1684605-20190522150831073-641494049.png)
 
 ```java
 public V put(K key, V value) {
@@ -366,14 +376,14 @@ JDK1.8 ：不安全，并发put时会发生数据覆盖的情况
 - **Segment 数组 + HashEntry 数组 + 链表：**一个`ConcurrentHashMap`维护一个`Segment数组`，一个 `Segment` 维护一个`HashEntry数组`。`Segment` 内部可以进行扩容，但是`Segment`的个数一旦初始化就不能改变。默认的`Segment`个数为16。
 - 在安全方面，使用**分段锁**，每个 `Segment` 上同时只有一个线程可以操作。**Segment继承了ReentrantLock**，所以它也是一种**可重入锁**
 
-![img](Java.assets/640)
+![img](https://typora-image-ariellauu.oss-cn-beijing.aliyuncs.com/uPic/640.jpg)
 
 **5.2 ConcurrentHashMap JDK1.8**
 
 - 底层结构不再是之前的 **Segment 数组 + HashEntry 数组 + 链表**，而是 **Node 数组 + 链表 / 红黑树**。当冲突链表达到一定长度时，链表会转换成红黑树。
 - 在安全上使用**Synchronized+CAS**机制，`synchronized`只锁定当前链表或红黑树的首节点，这样只要哈希不冲突，就不会产生并发
 
-![concurrentHashMap](Java.assets/concurrentHashMap.png)
+![concurrentHashMap](https://typora-image-ariellauu.oss-cn-beijing.aliyuncs.com/uPic/concurrentHashMap.png)
 
 ---
 

@@ -164,9 +164,11 @@ https://www.zhihu.com/question/23641679?sort=created （里面涉及cglib动态�
 - 正常情况下，都是在bean初始化后，调用 `postProcessAfterInitialisation()` 进行Spring AOP代理。
 - 如果需要提前曝光代理，则在从三级缓存 `getObject()` 的时候进行 AOP代理
 
-![img](/Users/yujialiu/Documents/Java Typora/系统设计.assets/webp)
+![img](https://typora-image-ariellauu.oss-cn-beijing.aliyuncs.com/uPic/8190955-982ed2cabfa2ee76.jpeg)
 
 参考链接：https://www.jianshu.com/p/3bc6c6713b08
+
+---
 
 ####  cglib，JDK动态代理区别
 
@@ -191,7 +193,7 @@ https://blog.csdn.net/john_lw/article/details/79539070
 6. `DispatcherServlet`将 `ModelAndView` 传给`ViewResolver` ，`ViewResolver`会根据逻辑 `View` 查找实际的 `View`，并返回给`DispatcherServlet`。
 7. `DispaterServlet` 对  `View`进行渲染，即将模型数据填充到视图中。
 
-![SpringMVC运行原理](系统设计.assets/687474703a2f2f6d792d626c6f672d746f2d7573652e6f73732d636e2d6265696a696e672e616c6979756e63732e636f6d2f31382d31302d31312f34393739303238382e6a7067)
+![SpringMVC运行原理](https://typora-image-ariellauu.oss-cn-beijing.aliyuncs.com/uPic/687474703a2f2f6d792d626c6f672d746f2d7573652e6f73732d636e2d6265696a696e672e616c6979756e63732e636f6d2f31382d31302d31312f34393739303238382e6a7067.jpg)
 
 **作用**：将包含业务数据的模块与显示模块的视图解耦，代码松耦合；与spring其他框架无缝集成
 
@@ -273,7 +275,7 @@ https://mp.weixin.qq.com/s/IcDEEft7bLhnqyo5knwUdw
 
 #### Spring相关的设计模式
 
-![image-20200902183508555](系统设计.assets/image-20200902183508555.png)
+![image-20200902183508555](https://typora-image-ariellauu.oss-cn-beijing.aliyuncs.com/uPic/image-20200902183508555.png)
 
 https://github.com/Snailclimb/JavaGuide/blob/master/docs/system-design/framework/spring/Spring-Design-Patterns.md
 
