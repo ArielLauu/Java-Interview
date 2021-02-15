@@ -4,7 +4,7 @@
 
 #### 什么是Spring框架，作用
 
-Spring 是一种**轻量级开发框架**，旨在**提高开发人员的开发效率以及系统的可维护性**。 Spring 框架是很多模块的集合，使用这些模块可以很方便地协助我们进行开发，如核心容器（主要提供 IoC 依赖注入）、AOP等。
+Spring 是一种**轻量级开发框架**，旨在**提高开发人员的开发效率以及系统的可维护性**。 Spring 框架是很多模块的集合，为开发Java应用程序提供了全面的基础架构支持，使用这些模块可以很方便地协助我们进行开发，如核心容器（主要提供 IoC 依赖注入）、AOP等。
 
 ---
 
@@ -19,7 +19,7 @@ Spring 是一种**轻量级开发框架**，旨在**提高开发人员的开发�
 **2 Spring如何实现IOC**
 
 - Bean的创建是典型的工厂模式
-- **BeanFactory** 是IOC容器最顶层的接口，负责管理Bean，可以理解为就是个 HashMap，Key 是 BeanName，Value 是 Bean 实例。BeanFactory主要提供了getBean()方法，用于获取以及创建Bean。
+- **BeanFactory** 是IOC容器最顶层的接口，负责管理Bean。BeanFactory主要提供了getBean()方法，用于获取以及创建Bean。
 - 而 **ApplicationContext** 是对BeanFactory的扩展，其内部有一个实例化的DefaultListableBeanFactory（所有的 Bean 注册后会放入其中的 beanDefinitionMap，本质为ConcurrentHashMap）。
 - **容器初始化**：首先进入refresh()进行IOC容器的初始化。将Bean配置加载为BeanDefinition，注册到容器中，此时的依赖关系用占位符代替。
 - **bean的初始化**：进入getBean()方法获取或创建Bean。如果bean的作用域是singleton，先去缓存查找，未找到才新建实例并保存；如果不是singleton，直接新建实例。如果不存在方法覆写，那就使用 java 反射进行实例化，否则使用 CGLIB。在调用getBean的时候，如果碰到了属性是bean依赖的，则先初始化依赖的 bean，进行依赖注入。
@@ -116,7 +116,7 @@ AOP 面向切面编程，就是将那些与业务无关，却为业务模块所�
    JDK代理类实现了InvocationHandler接口，执行过程主要看它的`invoke`方法。cglib动态代理类似，执行逻辑是在`intercept`方法中。以JDK动态代理为例
 
    - 创建拦截器链，拦截器链中将Advisor封装成 MethodInterceptor，并通过`proceed()`方法实现增强的递归调用。直到拦截器执行结束，执行目标方法
-   - 关于协调前置，后置各种通知的代码，都是由MethodInterceptor 的invoke()方法维护维。如前置MethodInterceptor是先激活前置增强方法，再递归调用下一个拦截器。后置MethodInterceptor是先递归调用下一个拦截器，在通过finally语句激活后置增强方法
+   - 关于协调前置，后置各种通知的代码，都是由MethodInterceptor 的invoke()方法维护。如前置MethodInterceptor是先激活前置增强方法，再递归调用下一个拦截器。后置MethodInterceptor是先递归调用下一个拦截器，在通过finally语句激活后置增强方法
 
    ```java
    //前置MethodInterceptor  

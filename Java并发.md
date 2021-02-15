@@ -210,7 +210,7 @@ https://blog.csdn.net/Maxiao1204/article/details/85065510
 
 #### 并发编程的重要特性
 
-1. **原子性**：`synchronized`可以保证
+1. **原子性**：原子性指一个或多个操作在CPU执行的过程不被中断的特性。`synchronized`可以保证
 2. **可见性**：当一个线程对共享变量进行了修改，其他线程都可以立即看到修改后的值。`volatile`关键词可以保证
 3. **有序性**：由于Java在编译和运行期的优化，代码的执行顺序未必就是编写代码时候的顺序。`volatile`可以禁止指令进行重排序优化
 
@@ -234,7 +234,7 @@ https://blog.csdn.net/Maxiao1204/article/details/85065510
 
 2. **禁止指令重排的实现** https://www.jianshu.com/p/ef8de88b1343
 
-   - Java编译器通过**内存屏障**禁止指令重排
+   - Java编译器通过**内存屏障**禁止指令重排：防止内存屏障两侧的指令重排
    - 内存屏障分为两种：**Load Barrier（读屏障）** 和 **Store Barrier（写屏障）**
    - **Load Barrier**：在指令前插入，可以让高速缓存中的数据失效，强制重新从主存中加载数据
    - **Store Barrier**：在指令后插入，让写入缓存中的数据更新到主存中，对其他线程可见
@@ -244,6 +244,8 @@ https://blog.csdn.net/Maxiao1204/article/details/85065510
 
 > ​	在每个**volatile写操作**前插入**StoreStore**屏障，在写操作后插入**StoreLoad**屏障；
 > ​	在每个**volatile读操作**前插入**LoadLoad**屏障，在读操作后插入**LoadStore**屏障；
+
+补充：volatile为什么不保证原子性：https://www.zhihu.com/question/329746124
 
 **3 和synchronized的区别**
 
@@ -265,7 +267,7 @@ https://www.cnblogs.com/fxtx/p/11657021.html
 
 #### AQS原理
 
-AQS的全称为（AbstractQueuedSynchronizer），在java.util.concurrent.locks包下面，是一个用来构建锁和同步器的框架。
+AQS的全称为（AbstractQueuedSynchronizer），在java.util.concurrent.locks包下面，是一个用来**构建锁和同步器的框架**。
 
 **1 AQS原理概览**
 
@@ -475,10 +477,10 @@ https://www.runoob.com/design-pattern/singleton-pattern.html
    ```java
    public class Singleton{
      	private static class SingletonHolder{
-         	private static final Singleton instance=new Singleton();
+         	private static Singleton instance=new Singleton();
        }
      	private Singleton(){}
-     	private static final Singleton getInstance(){
+     	public static Singleton getInstance(){
          	return SingletonHolder.instance;
        }
    }
@@ -505,7 +507,7 @@ https://www.runoob.com/design-pattern/singleton-pattern.html
 
 2. **枚举**
 
-   优点：它不仅能避免多线程同步问题，而且还自动支持序列化机制，防止反序列化重新创建新的对象，绝对防止多次实例化
+   优点：它不仅能避免多线程同步问题，而且还自动支持序列化机制，防止反序列化重新创建新的对象，防止多次实例化
 
    ```java
    public enum Singleton{
@@ -516,4 +518,158 @@ https://www.runoob.com/design-pattern/singleton-pattern.html
    }
    ```
 
-   
+
+---
+
+#### 两个线程交替打印1-100
+
+**1. synchronized版本**，这里是类锁（`synchronized(this)`)
+
+```java
+public class Number implements Runnable{
+    private int number=1;
+    @Override
+    public void run(){
+        while(true){
+            synchronized(this){
+                this.notify();
+                if(number<=100){
+                    try{
+                        Thread.sleep(10);
+                    }catch (InterruptedException e){
+                        e.printStackTrace();
+                    }
+
+                    System.out.println(Thread.currentThread().getName()+": "+number);
+                    number++;
+
+                    try{
+                        this.wait();
+                    }catch(InterruptedException e){
+                        e.printStackTrace();
+                    }
+                }else{
+                    break;
+                }
+            }
+        }
+    }
+
+    public static void main(String[] args){
+        Number num=new Number();
+        Thread t1=new Thread(num);
+        Thread t2=new Thread(num);
+        t1.setName("thread 1");
+        t2.setName("thread 2");
+        t1.start();
+        t2.start();
+    }
+}
+```
+
+---
+
+#### 三个线程轮流打印123
+
+**1. synchronized版本**，这里是lock锁 (`Object lock`)，所以number要加static
+
+```java
+//三个线程轮流打印123，123
+public class ThreeNumber implements  Runnable{
+    private Object lock;
+    //很重要！
+    private static int num=0;
+    private int threadId;
+    private int end=21;
+
+    public ThreeNumber(int threadId,Object lock){
+        this.threadId=threadId;
+        this.lock=lock;
+    }
+
+    @Override
+    public void run(){
+        while(num<=end){
+            synchronized (lock){
+                if(num%3==threadId){
+                    System.out.println("Thread "+threadId+": "+(num%3+1));
+                    num++;
+                }else{
+                    try{
+                        lock.wait();
+                    }catch(InterruptedException e){
+                        e.printStackTrace();
+                    }
+                }
+                lock.notifyAll();
+            }
+        }
+
+    }
+
+    public static void main(String[] args){
+        Object lock=new Object();
+        new Thread(new ThreeNumber(0,lock)).start();
+        new Thread(new ThreeNumber(1,lock)).start();
+        new Thread(new ThreeNumber(2,lock)).start();
+    }
+}
+
+```
+
+**2. ReentrantLock+Condition**
+
+```java
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
+
+public class ThreeNumRe implements Runnable{
+
+    private ReentrantLock lock;
+    private Condition currCon;
+    private Condition nextCon;
+    private static int num;
+    private int threadId;
+    private int end=21;
+
+    public ThreeNumRe(int threadId,ReentrantLock lock,Condition curr,Condition next){
+        this.threadId=threadId;
+        this.lock=lock;
+        this.currCon=curr;
+        this.nextCon=next;
+    }
+
+    @Override
+    public void run(){
+        while(num<end){
+            lock.lock();
+            try{
+                if(num%3==threadId){
+                    System.out.println("Thread "+threadId+": "+(num%3+1));
+                    num++;
+                    nextCon.signal();
+                }else{
+                    currCon.await();
+                }
+            }catch(InterruptedException e){
+                e.printStackTrace();
+            }finally {
+                lock.unlock();
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        ReentrantLock lock=new ReentrantLock();
+        Condition con0=lock.newCondition();
+        Condition con1=lock.newCondition();
+        Condition con2=lock.newCondition();
+        new Thread(new ThreeNumRe(0,lock,con0,con1)).start();
+        new Thread(new ThreeNumRe(1,lock,con1,con2)).start();
+        new Thread(new ThreeNumRe(2,lock,con2,con0)).start();
+    }
+}
+
+```
+
+参考链接：https://www.jianshu.com/p/e4ab42807314

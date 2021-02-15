@@ -52,7 +52,7 @@
 
 #### 接口和抽象类的区别
 
-1. 接口的方法默认是 public，所有方法在接口里不能有默认实现（JDK8开始，可以有默认实现）。而抽象类可以有非抽象的方法
+1. 所有方法在接口里不能有默认实现（JDK8开始，可以有默认实现）。而抽象类可以有非抽象的方法
 2. 接口中除了 final和static变量，不能有其他变量。抽象类不一定
 3. 类可以实现多个接口，但只能继承一个抽象类
 4. 接口方法默认修饰符是public，抽象类方法修饰符可以是public/protected/default
@@ -84,7 +84,7 @@ https://www.runoob.com/java/java-generics.html
 
 - Java中的所有异常都有一个共同祖先，java.lang.**Throwable类**。Throwable 有两个重要的子类：**Exception（异常）** 和 **Error（错误）**
 
-- **Error **表示程序无法处理的错误。大多数都与代码编写者执行的操作五官，而表示代码运行时JVM出现的问题。
+- **Error **表示程序无法处理的错误。大多数都与代码编写者执行的操作无关，而表示代码运行时JVM出现的问题。
 - **Expection**是程序可以处理的异常，分为**运行时异常（RuntimeException，不受检异常：还包括Error)**和**编译异常（IOException，受检异常）**
   - **RuntimeException **表示JVM在运行期间可能出现的异常，如数组下标越界`（ArrayIndexOutBoundException）`。这类异常一般由程序逻辑错误引起，可以选择捕获处理，也可以不处理。
   - **IOException **是编译器要求必须处理的异常，否则编译不通过。
@@ -96,10 +96,38 @@ https://www.runoob.com/java/java-generics.html
 #### Java如何实现跨平台
 
 - JVM是实现跨平台的桥梁。
-
 - JVM不认识 `.java` 文件，需要将其编译为JVM认识的 `.class` 字节码（二进制）文件，然后由不同平台中的JVM，将字节码文件翻译成特定平台下的机器码，然后运行。
-
 - 所以虽然Java是平台无关的，但是JVM是平台有关的，通过JVM的不同实现方式，实现了跨平台的功能。
+
+---
+
+#### Java中的IO（BIO、NIO和AIO）
+
+1. **BIO (Blocking I/O)**：同步阻塞I/O模式，数据的读取写入必须阻塞在一个线程内等待其完成。是典型的 **一请求一应答通信模型**。
+
+在活动连接数不是特别高（小于单机1000）的情况下，这种模型是比较不错的，可以让每一个连接专注于自己的 I/O 并且编程模型简单，也不用过多考虑系统的过载、限流等问题。但是高并发场景下，传统的 BIO 模型是无能为力的。
+
+![传统BIO通信模型图](https://typora-image-ariellauu.oss-cn-beijing.aliyuncs.com/uPic/68747470733a2f2f6d792d626c6f672d746f2d7573652e6f73732d636e2d6265696a696e672e616c6979756e63732e636f6d2f322e706e67.png)
+
+2. **NIO（New I/O）**：同步非阻塞的I/O模型，在Java 1.4 中引入，提供了 Channel , Selector，Buffer等抽象。
+
+通常来说NIO中的所有IO都是从 Channel（通道） 开始的。
+
+- 从通道进行数据读取 ：创建一个缓冲区，然后请求通道读取数据。同时可以继续做别的事情，当数据读取到buffer中后，线程再继续处理数据
+
+- 从通道进行数据写入 ：创建一个缓冲区，填充数据，并要求通道写入数据。但不需要等待它完全写入，这个线程同时可以去做别的事情。
+
+  **选择器**：用于使用单个线程处理多个通道。因此，它需要较少的线程来处理这些通道
+
+3. **AIO（Asynchronous I/O）**：在 Java 7 中引入，它是异步非阻塞的IO模型。异步 IO 是基于事件和回调机制实现的，也就是应用操作之后会直接返回，不会堵塞在那里，当后台处理完成，操作系统会通知相应的线程进行后续的操作。
+
+> **同步**：同步调用中被调用者未处理完请求之前，调用不返回
+>
+> **异步**：异步调用中一调用就返回，当结果处理完的时候，通过回调函数或者其他方式拿着结果再做相关事情\
+
+> **阻塞**： 阻塞就是发起一个请求，调用者一直等待请求结果返回，无法从事其他任务
+>
+> **非阻塞**：发起一个请求，调用者不用一直等着结果返回，可以先去干其他事情
 
 ---
 
@@ -132,9 +160,9 @@ https://www.runoob.com/java/java-generics.html
 
 ### :peach:容器
 
-#### 1 HashMap底层实现，JDK1.8前后
+#### HashMap底层实现，JDK1.8前后
 
-**1.1 JDK1.8之前**
+**1 JDK1.8之前**
 
 底层结构为**数组+链表**组合，即**链表散列**。key的hashcode经过扰动函数处理后，得到hash值，然后通过 **(n-1)&hash** （n为数组长度）判断当前元素存放的位置。若当前位置存在元素的话，判断该元素与要存入的元素hash和key值是否相同，相同直接覆盖，不同则通过拉链法解决冲突。注意链表的插入是以**头插法**进行的。
 
@@ -144,7 +172,7 @@ https://www.runoob.com/java/java-generics.html
 
 HashMap的长度为2的幂次方时，等式**hash % n =（n-1）& hash** 成立 ，且二进制操作速度更快
 
-**1.2 JDK1.8之后**
+**2 JDK1.8之后**
 
 与之前相比，在解决哈希冲突时，当链表长度大于阈值（默认8），将链表转化为红黑树，以减少搜索时间。但是在转化为红黑树前，会进行判断，若当前数组长度小于64，则会先扩容，而不是转换为红黑树。
 
@@ -152,7 +180,15 @@ HashMap的长度为2的幂次方时，等式**hash % n =（n-1）& hash** 成立
 
 ---
 
-#### 2 HashMap扩容
+#### HashCode怎么来的
+
+OpenJDK8 默认hashCode的计算方法是通过和当前线程有关的一个随机数+三个确定值，运用**Marsaglia's xor-shift scheme**随机数算法得到的一个随机数。和对象内存地址无关。
+
+https://juejin.cn/post/6844903487432556551
+
+---
+
+#### HashMap扩容
 
 HashMap扩容流程：
 
@@ -212,7 +248,7 @@ final Node<K,V>[] resize() {
         //将旧table中的元素放到扩容后的newTable中
         Node<K,V>[] newTab = (Node<K,V>[])new Node[newCap];
         table = newTab;
-    //如果“oldTab != null”说明是扩容，否则直接返回newTab
+        //如果“oldTab != null”说明是扩容，否则直接返回newTab
         if (oldTab != null) {
             for (int j = 0; j < oldCap; ++j) {
                 Node<K,V> e;
@@ -266,7 +302,7 @@ final Node<K,V>[] resize() {
 
 ---
 
-#### 3 HashMap put一个数据的流程
+#### HashMap put一个数据的流程
 
 https://www.cnblogs.com/captainad/p/10905184.html
 
@@ -359,7 +395,7 @@ final V putVal(int hash, K key, V value, boolean onlyIfAbsent,
 
 ---
 
-#### 4 HashMap是否线程安全
+#### HashMap是否线程安全
 
 JDK1.7： https://coolshell.cn/articles/9606.html
 
@@ -369,16 +405,16 @@ JDK1.8 ：不安全，并发put时会发生数据覆盖的情况
 
 ---
 
-#### 5 ConcurrentHashMap线程安全的原理，JDK1.8前后
+#### ConcurrentHashMap线程安全的原理，JDK1.8前后
 
-**5.1 ConcurrentHashMap JDK1.7**
+**1 ConcurrentHashMap JDK1.7**
 
 - **Segment 数组 + HashEntry 数组 + 链表：**一个`ConcurrentHashMap`维护一个`Segment数组`，一个 `Segment` 维护一个`HashEntry数组`。`Segment` 内部可以进行扩容，但是`Segment`的个数一旦初始化就不能改变。默认的`Segment`个数为16。
 - 在安全方面，使用**分段锁**，每个 `Segment` 上同时只有一个线程可以操作。**Segment继承了ReentrantLock**，所以它也是一种**可重入锁**
 
 ![img](https://typora-image-ariellauu.oss-cn-beijing.aliyuncs.com/uPic/640.jpg)
 
-**5.2 ConcurrentHashMap JDK1.8**
+**2 ConcurrentHashMap JDK1.8**
 
 - 底层结构不再是之前的 **Segment 数组 + HashEntry 数组 + 链表**，而是 **Node 数组 + 链表 / 红黑树**。当冲突链表达到一定长度时，链表会转换成红黑树。
 - 在安全上使用**Synchronized+CAS**机制，`synchronized`只锁定当前链表或红黑树的首节点，这样只要哈希不冲突，就不会产生并发
@@ -387,7 +423,7 @@ JDK1.8 ：不安全，并发put时会发生数据覆盖的情况
 
 ---
 
-#### 6 ConcurrentHashMap和HashTabel区别
+#### ConcurrentHashMap和HashTabel区别
 
 1. **底层数据结构**
    - JDK 1.7 的ConcurrentHashMap底层采用 **Segment 数组 + HashEntry 数组 + 链表**，JDK1.8底层采用**node+链表/红黑树**。
@@ -398,7 +434,7 @@ JDK1.8 ：不安全，并发put时会发生数据覆盖的情况
 
 ---
 
-#### 7 TreeMap和HashMap适用场景
+#### TreeMap和HashMap适用场景
 
  **TreeMap和HashMap比较：**
 
@@ -406,7 +442,7 @@ JDK1.8 ：不安全，并发put时会发生数据覆盖的情况
 
 - 实现 `NavigableMap` 接口让 `TreeMap` 有了对集合内元素的搜索的能力。
 
-- 实现`SortMap`接口让 `TreeMap` 有了对集合中的元素根据键排序的能力。默认是按 key 的升序排序，不过我们也可以指定排序的比较器。
+- 实现`SortedMap`接口让 `TreeMap` 有了对集合中的元素根据键排序的能力。默认是按 key 的升序排序，不过我们也可以指定排序的比较器。
 
 **适用场景：**
 
@@ -415,6 +451,16 @@ JDK1.8 ：不安全，并发put时会发生数据覆盖的情况
 ---
 
 #### （Map一个线程正在扩容，另一个线程在加数据，另一个在删数据，如何处理？）（扩容时有put操作怎么办）
+
+---
+
+#### ArrayList扩容
+
+1. 如果当前数组还未初始化，直接以`DEFAULT_CAPACITY(10)`进行扩容。
+2. 如果要扩容的`minCapacity`小于`DEFAULT_CAPACITY(10)`或者当前数组长度==`elementData.length`，则不扩容。
+3. 更新`modCount`。如果需要扩容，调用`grow()`方法
+4. 判断旧数组长度的1.5倍，和minCapacity的较大值，设置为新的容量。如果新容量 >`MAX_ARRAY_SIZE`，那么就用 Integer 的最大值。`( MAX_ARRAY_SIZE = Integer.MAX_VALUE - 8)`
+5. 通过`Arrays.copyOf`创建新数组，并将旧数组的数据拷贝过去
 
 ---
 
