@@ -402,6 +402,34 @@ https://www.cnblogs.com/weiqihome/p/9665718.html（写的有点乱）
 
 ![img](https://typora-image-ariellauu.oss-cn-beijing.aliyuncs.com/uPic/4bed2e738bd4b31c558a9715a70ecd799c2ff8cd.png)
 
+Tips:
+
+1. yeild()：yield()方法就是暂停当前的线程，让给其他线程（包括它自己）执行
+2. join()：join()方法是指等待调用join()方法的线程执行结束，程序才会继续执行下去
+
+---
+
+#### 如何优雅的中断线程
+
+**1. volatile可见性标记**
+
+实时判断变量状态，如为false时run()方法不再运行。但是线程如果处于阻塞状态，无法判断标记状态，所以必须被叫醒之后，才能进行中断
+
+**2. interrupt方法**
+
+- `interrupt()`仅仅起到通知被停止线程的作用。而对于被停止的线程而言，它拥有完全的自主权，它既可以选择立即停止，也可以选择一段时间后停止，也可以选择压根不停止。
+
+- 如果该线程正在执行低级别的中断阻塞方法等 Thread.sleep()，Thread.join()或 Object.wait()，`interrupt()`会抛出 `InterruptedException`。同时清除中断信号，将中断标记位设置成 `false`
+- 可以通过`Thread.isInterrupted()`或者捕获异常，对中断进行下一步的处理
+
+线程终止的主要两种方式，一种是 `interrupt` 一种是`volatile` ，两种类似的地方都是通过标记来实现的，不过`interrupt` 是中断信号传递，基于系统层次的，不受阻塞影响，而对于 `volatile` ，我们是利用其可见性而顶一个标记位标量，但是当出现阻塞等时无法进行及时的通知。
+
+https://segmentfault.com/a/1190000037446840
+
+https://cloud.tencent.com/developer/article/1493322
+
+http://www.520code.net/index.php/archives/31/
+
 ---
 
 #### 单例模式实现

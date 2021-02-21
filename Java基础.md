@@ -60,6 +60,15 @@
 
 ---
 
+#### private default protected public 权限
+
+- **private：**作用于属性和方法时，就只有在同一个类中能访问它们
+- **default：**作用于属性和方法时，除了在同一个类中能访问它们，同一个包中的其它类（包括该类的子类和任意其它类）中也能访问它们。当属性或者方法没有权限修饰符时，其实就是default修饰的
+- **protected：**作用于属性和方法时，除了在同一个类中和同一个包中的类（包括子类和其它任意类）中能访问它们外，其它包中该类的子类中也能访问它们
+- **public：**所有类都能访问
+
+---
+
 #### 重载和重写
 
 **1 重载**：方法名字相同，而参数个数/类型/顺序不同，或返回类型不同。即同样的一个方法能够根据输入数据的不同，做出不同的处理
@@ -91,6 +100,10 @@ https://www.runoob.com/java/java-generics.html
 
 <img src="https://typora-image-ariellauu.oss-cn-beijing.aliyuncs.com/uPic/exception-architechture-java.png" alt="exception-architechture-java" style="zoom: 50%;" />
 
+##### Exception的最佳实践
+
+参考链接：https://yq.aliyun.com/articles/762814
+
 ---
 
 #### Java如何实现跨平台
@@ -98,6 +111,17 @@ https://www.runoob.com/java/java-generics.html
 - JVM是实现跨平台的桥梁。
 - JVM不认识 `.java` 文件，需要将其编译为JVM认识的 `.class` 字节码（二进制）文件，然后由不同平台中的JVM，将字节码文件翻译成特定平台下的机器码，然后运行。
 - 所以虽然Java是平台无关的，但是JVM是平台有关的，通过JVM的不同实现方式，实现了跨平台的功能。
+
+---
+
+#### 如何通过反射访问私有方法和属性
+
+- `clazz.getDeclaredFields()`获取所有属性，然后通过`fs[i].setAccessible(true)`让某个（私有）属性可以被访问
+- `classType.getDeclaredField("属性名")`获得属性，`field.setAccessible(true)`，并通过 `field.set(对象, "属性值")`修改属性值
+- `clazz.getDeclaredMethods()`获取某个类的所有方法，`ms[i].setAccessible(true)`将方法设置为可以访问
+- `classType.getDeclaredMethod("方法名", 参数类型)`获取指定方法,`method.setAccessible(true)`，并通过`method.invoke(对象, 具体参数)`进行调用
+
+https://blog.csdn.net/vipwalkingdog/article/details/7684349
 
 ---
 
@@ -465,3 +489,9 @@ JDK1.8 ：不安全，并发put时会发生数据覆盖的情况
 ---
 
 ### :peach:其他
+
+#### 知道怎么撑爆方法区内存吗？或者说怎么动态生成很多方法？
+
+CGlib 动态生成类、方法
+
+https://blog.csdn.net/u013555976/article/details/87182366?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.control&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.control
