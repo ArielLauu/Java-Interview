@@ -405,7 +405,17 @@ https://www.cnblogs.com/weiqihome/p/9665718.html（写的有点乱）
 Tips:
 
 1. yeild()：yield()方法就是暂停当前的线程，让给其他线程（包括它自己）执行
+
 2. join()：join()方法是指等待调用join()方法的线程执行结束，程序才会继续执行下去
+
+3. LockSupport.park()
+
+   > 每个线程都有一个许可(permit)，permit只有两个值1和0,默认是0。
+   >
+   > 1. 当调用unpark(thread)方法，就会将thread线程的许可permit设置成1(注意多次调用unpark方法，不会累加，permit值还是1)。
+   > 2. 当调用park()方法，如果当前线程的permit是1，那么将permit设置为0，并立即返回。如果当前线程的permit是0，那么当前线程就会阻塞，直到别的线程将当前线程的permit设置为1.park方法会将permit再次设置为0，并返回。
+
+https://redspider.gitbook.io/concurrent/di-yi-pian-ji-chu-pian/4
 
 ---
 

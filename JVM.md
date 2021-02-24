@@ -334,6 +334,14 @@ protected Class<?> findClass(String name) throws ClassNotFoundException {
 
 ---
 
+#### 分配担保机制
+
+是因为新生代采用**复制收集算法**，假如大量对象在Minor GC后仍然存活（最极端情况为内存回收后新生代中所有对象均存活），而Survivor空间是比较小的，这时就需要老年代进行分配担保，把Survivor无法容纳的对象放到老年代。**老年代要进行空间分配担保，前提是老年代得有足够空间来容纳这些对象**，但一共有多少对象在内存回收后存活下来是不可预知的，**因此只好取之前每次垃圾回收后晋升到老年代的对象大小的平均值作为参考**。使用这个平均值与老年代剩余空间进行比较，来决定是否进行Full GC来让老年代腾出更多空间。
+
+https://www.cnblogs.com/july-sunny/p/12618054.html
+
+---
+
 #### 垃圾收集器
 
 <img src="https://typora-image-ariellauu.oss-cn-beijing.aliyuncs.com/uPic/68747470733a2f2f63732d6e6f7465732d313235363130393739362e636f732e61702d6775616e677a686f752e6d7971636c6f75642e636f6d2f63363235626161302d646465362d343439652d393364662d6333613637663266343330662e6a7067.jpg" alt="img"  />

@@ -125,6 +125,12 @@ https://blog.csdn.net/vipwalkingdog/article/details/7684349
 
 ---
 
+#### Java8的新特性
+
+https://blog.csdn.net/yczz/article/details/50896975
+
+---
+
 #### Java中的IO（BIO、NIO和AIO）
 
 1. **BIO (Blocking I/O)**：同步阻塞I/O模式，数据的读取写入必须阻塞在一个线程内等待其完成。是典型的 **一请求一应答通信模型**。
@@ -476,13 +482,31 @@ JDK1.8 ：不安全，并发put时会发生数据覆盖的情况
 
 #### （Map一个线程正在扩容，另一个线程在加数据，另一个在删数据，如何处理？）（扩容时有put操作怎么办）
 
+
+
+---
+
+#### HashSet如何检查重复
+
+HashSet底层是基于HashMap的，key为set加入的对象，value为一个固定的Object对象。所以检查重复的过程，和HashMap put一个元素的过程类似
+
+```java
+private static final Object PRESENT = new Object();
+//HashSet add
+public boolean add(E e) {
+    return map.put(e, PRESENT)==null;
+}
+```
+
+https://blog.csdn.net/weixin_34061587/article/details/113076299
+
 ---
 
 #### ArrayList扩容
 
-1. 如果当前数组还未初始化，直接以`DEFAULT_CAPACITY(10)`进行扩容。
-2. 如果要扩容的`minCapacity`小于`DEFAULT_CAPACITY(10)`或者当前数组长度==`elementData.length`，则不扩容。
-3. 更新`modCount`。如果需要扩容，调用`grow()`方法
+1. 如果当前数组还是空数组，直接以`DEFAULT_CAPACITY(10)`进行扩容。
+2. 如果要扩容的`minCapacity`小于`DEFAULT_CAPACITY(10)`，则不扩容
+3. `modCount++`。如果要扩容的`minCapacity`小于当前数组长度`elementData.length`，则不扩容。如果需要扩容，调用`grow()`方法
 4. 判断旧数组长度的1.5倍，和minCapacity的较大值，设置为新的容量。如果新容量 >`MAX_ARRAY_SIZE`，那么就用 Integer 的最大值。`( MAX_ARRAY_SIZE = Integer.MAX_VALUE - 8)`
 5. 通过`Arrays.copyOf`创建新数组，并将旧数组的数据拷贝过去
 
