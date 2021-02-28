@@ -93,7 +93,7 @@ https://www.runoob.com/java/java-generics.html
 
 - Java中的所有异常都有一个共同祖先，java.lang.**Throwable类**。Throwable 有两个重要的子类：**Exception（异常）** 和 **Error（错误）**
 
-- **Error **表示程序无法处理的错误。大多数都与代码编写者执行的操作无关，而表示代码运行时JVM出现的问题。
+- **Error **：表示程序无法处理的错误。大多数都与代码编写者执行的操作无关，而表示代码运行时JVM出现的问题。
 - **Expection**是程序可以处理的异常，分为**运行时异常（RuntimeException，不受检异常：还包括Error)**和**编译异常（IOException，受检异常）**
   - **RuntimeException **表示JVM在运行期间可能出现的异常，如数组下标越界`（ArrayIndexOutBoundException）`。这类异常一般由程序逻辑错误引起，可以选择捕获处理，也可以不处理。
   - **IOException **是编译器要求必须处理的异常，否则编译不通过。
@@ -127,19 +127,77 @@ https://blog.csdn.net/vipwalkingdog/article/details/7684349
 
 #### Java8的新特性
 
+**1. 接口可以有默认方法（default关键字修饰）、静态方法**
+
+**2. lambda表达式**
+
+```java
+Collections.sort(names, (String a, String b) -> b.compareTo(a));
+names.sort((a, b) -> b.compareTo(a));
+```
+
+**lambda表达式作用域**
+
+- 我们可以直接在 lambda 表达式中访问外部的局部变量（变量后面不可被修改）
+- 对lambda表达式中的实例字段和静态变量都有读写访问权限
+- 无法从 lambda 表达式中访问默认方法
+
+**3. 函数式接口**
+
+“函数式接口”是指**仅包含一个抽象方法**，但是可以有多个非抽象方法(也就是上面提到的默认方法)的接口，可以使现有的函数友好地支持Lambda
+
+**4. 方法和构造函数引用**
+
+通过`::`关键字传递方法或构造函数的引用，进而调用构造函数和方法
+
+```java
+Integer::valueOf //方法
+PersonFactory<Person> personFactory = Person::new; //构造函数
+```
+
+**5. 提供更多内置函数式接口**
+
+Predicate、Function、Supplier、Consumer、Consumer
+
+**6. Optional**
+
+用于防止 NullPointerException
+
+**7. Streams**
+
+- `java.util.Stream` 表示能应用在一组元素上一次执行的操作序列。
+
+- Stream 操作分为中间操作或者最终操作两种，最终操作返回一特定类型的计算结果，而中间操作返回Stream本身，这样你就可以将多个操作依次串起来。
+
+- Stream 的创建需要指定一个数据源，比如` java.util.Collection` 的子类，List 或者 Set， Map 不支持。
+
+- Stream 的操作可以**串行执行或者并行执行**。
+
+**8. Map** 
+
+支持各种新的和有用的方法来执行常见任务
+
+**9. Date API(日期相关API)**
+
+Java 8在 `java.time` 包下包含一个全新的日期和时间API。如：Clock 类提供了访问当前日期和时间的方法
+
+**10. Annotations(注解)**
+
+在Java 8中支持多重注解了，允许我们把同一个类型的注解使用多次，只需要给该注解标注一下`@Repeatable`即可。
+
 https://blog.csdn.net/yczz/article/details/50896975
 
 ---
 
 #### Java中的IO（BIO、NIO和AIO）
 
-1. **BIO (Blocking I/O)**：同步阻塞I/O模式，数据的读取写入必须阻塞在一个线程内等待其完成。是典型的 **一请求一应答通信模型**。
+**1. BIO (Blocking I/O)**：同步阻塞I/O模式，数据的读取写入必须阻塞在一个线程内等待其完成。是典型的 **一请求一应答通信模型**。
 
 在活动连接数不是特别高（小于单机1000）的情况下，这种模型是比较不错的，可以让每一个连接专注于自己的 I/O 并且编程模型简单，也不用过多考虑系统的过载、限流等问题。但是高并发场景下，传统的 BIO 模型是无能为力的。
 
 ![传统BIO通信模型图](https://typora-image-ariellauu.oss-cn-beijing.aliyuncs.com/uPic/68747470733a2f2f6d792d626c6f672d746f2d7573652e6f73732d636e2d6265696a696e672e616c6979756e63732e636f6d2f322e706e67.png)
 
-2. **NIO（New I/O）**：同步非阻塞的I/O模型，在Java 1.4 中引入，提供了 Channel , Selector，Buffer等抽象。
+**2. NIO（New I/O）**：同步非阻塞的I/O模型，在Java 1.4 中引入，提供了 Channel , Selector，Buffer等抽象。
 
 通常来说NIO中的所有IO都是从 Channel（通道） 开始的。
 
@@ -149,7 +207,7 @@ https://blog.csdn.net/yczz/article/details/50896975
 
   **选择器**：用于使用单个线程处理多个通道。因此，它需要较少的线程来处理这些通道
 
-3. **AIO（Asynchronous I/O）**：在 Java 7 中引入，它是异步非阻塞的IO模型。异步 IO 是基于事件和回调机制实现的，也就是应用操作之后会直接返回，不会堵塞在那里，当后台处理完成，操作系统会通知相应的线程进行后续的操作。
+**3. AIO（Asynchronous I/O）**：在 Java 7 中引入，它是异步非阻塞的IO模型。异步 IO 是基于事件和回调机制实现的，也就是应用操作之后会直接返回，不会堵塞在那里，当后台处理完成，操作系统会通知相应的线程进行后续的操作。
 
 > **同步**：同步调用中被调用者未处理完请求之前，调用不返回
 >
@@ -186,6 +244,24 @@ https://blog.csdn.net/yczz/article/details/50896975
 2. 单线程下操作大量数据：StringBuilder
 3. 多线程下操作大量数据：StringBuffer
 
+
+
+##### String不可变的原理是什么？为什么要设计成不可变的？ 
+
+ char数组用final修饰的；如果可变，字符串常量池引用会混乱；String缓存了自己的hash，如果可变，但是hash不会变，在HashMap、HashSet中会出现问题；String经常用作参数，如果可变则不安全。
+
+1. **字符串常量池的需要：**可能存在多个String对象，引用了同一个厂量池中的对象。如果修改其中一个，可能会影响另一个，造成逻辑混乱
+2. **String对象缓存了HashCode**：String是不可变的，保证了hashcode的唯一性，于是在创建对象时其hashcode就可以放心的缓存了，不需要重新计算。这也就是Map喜欢将String作为Key的原因，处理速度要快过其它的键对象。
+3. **安全性**：String被许多的Java类(库)用来当做参数，例如网络连接地址URL，文件路径path等, 假若String不是固定不变的,将会引起各种安全隐患
+
+https://blog.csdn.net/renfufei/article/details/16808775
+
+
+
+**String str1 = "abc" 创建了几个对象？String str2 = "ab"+"c"创建了几个对象？**
+
+参考JVM部分
+
 ---
 
 ### :peach:容器
@@ -212,9 +288,57 @@ HashMap的长度为2的幂次方时，等式**hash % n =（n-1）& hash** 成立
 
 #### HashCode怎么来的
 
+- java6、7默认是返回随机数
+- java8默认是通过和当前线程有关的一个随机数+三个确定值，运用Marsaglia’s xorshift scheme随机数算法得到的一个随机数
+
 OpenJDK8 默认hashCode的计算方法是通过和当前线程有关的一个随机数+三个确定值，运用**Marsaglia's xor-shift scheme**随机数算法得到的一个随机数。和对象内存地址无关。
 
 https://juejin.cn/post/6844903487432556551
+
+---
+
+#### 重写hashCode()和equals()方法
+
+```java
+//String类的实现
+private final char value[];
+
+//遍历字符数中的每个志
+public int hashCode() {
+    int h = hash;
+    if (h == 0 && value.length > 0) {
+        char val[] = value;
+
+        for (int i = 0; i < value.length; i++) {
+            h = 31 * h + val[i];
+        }
+        hash = h;
+    }
+    return h;
+}
+//如果要判断两个String的实例相同，需要逐一判断这两个字符串中的字符是否相同。
+public boolean equals(Object anObject) {
+        if (this == anObject) {
+            return true;
+        }
+        if (anObject instanceof String) {
+            String anotherString = (String)anObject;
+            int n = value.length;
+            if (n == anotherString.value.length) {
+                char v1[] = value;
+                char v2[] = anotherString.value;
+                int i = 0;
+                while (n-- != 0) {
+                    if (v1[i] != v2[i])
+                        return false;
+                    i++;
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+```
 
 ---
 
@@ -509,6 +633,52 @@ https://blog.csdn.net/weixin_34061587/article/details/113076299
 3. `modCount++`。如果要扩容的`minCapacity`小于当前数组长度`elementData.length`，则不扩容。如果需要扩容，调用`grow()`方法
 4. 判断旧数组长度的1.5倍，和minCapacity的较大值，设置为新的容量。如果新容量 >`MAX_ARRAY_SIZE`，那么就用 Integer 的最大值。`( MAX_ARRAY_SIZE = Integer.MAX_VALUE - 8)`
 5. 通过`Arrays.copyOf`创建新数组，并将旧数组的数据拷贝过去
+
+---
+
+#### Arrays.sort()原理
+
+Sort 方法排序的性能较高，主要原因是 sort 使用了 **双轴快速排序 **算法
+
+1. 长度小于 47 的时候 使用插入排序
+
+2. 长度在 47 - 286 的时候 使用 双轴快速排序算法
+
+3. 长度大于286的时候分两种
+
+     如果已经高度结构化:       归并排序
+
+     如果还没有高度结构化： 双轴快速排序
+
+判断结构化的算法：
+
+- 定义一个常量MAX_RUN_COUNT = 67
+
+ - 定义一个计数器int count = 0; 定义一个数组int[] run 使之长度为MAX_RUN_COUNT + 1
+ - 从传入数组的最左侧left开始遍历,若第n 个元素的升/降序发生了改变，则将第n个元素的索引存入run[1], 同时++count
+ - 遍历完count仍然小于MAX_RUN_COUNT则高度结构话，如果是1就是已经排序好了，如果相等时直接调用双轴快速排序
+
+几个阈值（ 插入| 47 | 快排 | 286 | 归并）
+
+![image-20210226212247946](https://typora-image-ariellauu.oss-cn-beijing.aliyuncs.com/uPic/image-20210226212247946.png)
+
+```java
+/**
+ * If the length of an array to be sorted is less than this
+ * constant, Quicksort is used in preference to merge sort.
+ */
+private static final int QUICKSORT_THRESHOLD = 286;
+
+/**
+ * If the length of an array to be sorted is less than this
+ * constant, insertion sort is used in preference to Quicksort.
+ */
+private static final int INSERTION_SORT_THRESHOLD = 47;
+```
+
+基本思想，用两个pivot 将数据最终分成三个区域
+
+<img src="https://typora-image-elias.oss-cn-hangzhou.aliyuncs.com/uPic/image-20200804153759033.png" alt="image-20200804153759033" style="zoom:50%;" />
 
 ---
 

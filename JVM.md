@@ -115,6 +115,59 @@ JDK 1.8之后：
 
 ---
 
+#### 为什么要将永久代 (PermGen) 替换为元空间 (MetaSpace) 呢?
+
+1. 整个永久代有一个 JVM 本身设置固定大小上限，无法进行调整，而元空间使用的是直接内存，受本机可用内存的限制，虽然元空间仍旧可能溢出，但是比原来出现的几率会更小。
+
+> 当你元空间溢出时会得到如下错误： `java.lang.OutOfMemoryError: MetaSpace`
+
+你可以使用 `-XX：MaxMetaspaceSize` 标志设置最大元空间大小，默认值为 unlimited，这意味着它只受系统内存的限制。`-XX：MetaspaceSize` 调整标志定义元空间的初始大小如果未指定此标志，则 Metaspace 将根据运行时的应用程序需求动态地重新调整大小。
+
+2. 元空间里面存放的是类的元数据，这样加载多少类的元数据就不由 `MaxPermSize` 控制了, 而由系统的实际可用空间来控制，这样能加载的类就更多了。
+
+3. 在 JDK8，合并 HotSpot 和 JRockit 的代码时, JRockit 从来没有一个叫永久代的东西, 合并之后就没有必要额外的设置这么一个永久代的地方了。
+
+---
+
+#### 运行时常量池
+
+**String创建对象的两种方式：**
+
+```java
+String str1 = "abcd";//先检查字符串常量池中有没有"abcd"，如果字符串常量池中没有，则创建一个，然后 str1 指向字符串常量池中的对象，如果有，则直接将 str1 指向"abcd""；
+String str2 = new String("abcd");//堆中创建一个新的对象
+String str3 = new String("abcd");//堆中创建一个新的对象
+System.out.println(str1==str2);//false
+System.out.println(str2==str3);//false
+```
+
+- 第一种方式是**在常量池中创建/取对象**；
+- 第二种方式是直接**在堆内存空间创建一个新的对象**。
+
+**字符串拼接：**
+
+```java
+		  String str1 = "str";
+		  String str2 = "ing";
+		 
+		  String str3 = "str" + "ing";//常量池中的对象
+		  String str4 = str1 + str2; //在堆上创建的新的对象	  
+		  String str5 = "string";//常量池中的对象
+		  System.out.println(str3 == str4);//false
+		  System.out.println(str3 == str5);//true
+		  System.out.println(str4 == str5);//false
+```
+
+##### String s1 = new String("abc");这句话创建了几个字符串对象？
+
+将创建 **1 或 2 个**字符串。如果池中已存在字符串常量“abc”，则只会在堆空间创建一个字符串常量“abc”。如果池中没有字符串常量“abc”，那么它将首先在池中创建，然后在堆空间中创建，因此将创建总共 2 个字符串对象。
+
+ **String s1 = "abc"**： 创建了一个对象 "abc"
+
+**String s2="ab"+"cd"** ：则创建了3个对象，分别为 "ab","cd","abcd"
+
+---
+
 #### JVM类加载机制
 
 类是在运行期间第一次使用时动态加载的，而不是一次性加载所有的类。因为如果一次性加载，那么会占用很多的内存。
