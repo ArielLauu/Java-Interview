@@ -250,7 +250,7 @@ https://blog.csdn.net/yczz/article/details/50896975
 
  char数组用final修饰的；如果可变，字符串常量池引用会混乱；String缓存了自己的hash，如果可变，但是hash不会变，在HashMap、HashSet中会出现问题；String经常用作参数，如果可变则不安全。
 
-1. **字符串常量池的需要：**可能存在多个String对象，引用了同一个厂量池中的对象。如果修改其中一个，可能会影响另一个，造成逻辑混乱
+1. **字符串常量池的需要：**可能存在多个String对象，引用了同一个常量池中的对象。如果修改其中一个，可能会影响另一个，造成逻辑混乱
 2. **String对象缓存了HashCode**：String是不可变的，保证了hashcode的唯一性，于是在创建对象时其hashcode就可以放心的缓存了，不需要重新计算。这也就是Map喜欢将String作为Key的原因，处理速度要快过其它的键对象。
 3. **安全性**：String被许多的Java类(库)用来当做参数，例如网络连接地址URL，文件路径path等, 假若String不是固定不变的,将会引起各种安全隐患
 
@@ -261,6 +261,18 @@ https://blog.csdn.net/renfufei/article/details/16808775
 **String str1 = "abc" 创建了几个对象？String str2 = "ab"+"c"创建了几个对象？**
 
 参考JVM部分
+
+---
+
+#### 怎么实现深拷贝（待整理）
+
+**1. 构造函数**
+
+**2. 重写clone方法，实现Cloneable**
+
+**3. 序列化和反序列化**
+
+[多种深拷贝实现方式整理](https://www.cnblogs.com/xinruyi/p/11537963.html)
 
 ---
 
@@ -640,9 +652,9 @@ https://blog.csdn.net/weixin_34061587/article/details/113076299
 
 Sort 方法排序的性能较高，主要原因是 sort 使用了 **双轴快速排序 **算法
 
-1. 长度小于 47 的时候 使用插入排序
+1. 长度小于 47 的时候 使用**插入排序**
 
-2. 长度在 47 - 286 的时候 使用 双轴快速排序算法
+2. 长度在 47 - 286 的时候 使用 **双轴快速排序算法**
 
 3. 长度大于286的时候分两种
 
