@@ -102,6 +102,16 @@ https://www.runoob.com/java/java-generics.html
 
 ##### Exception的最佳实践
 
+1. **首先捕获最具体的异常**或者使用try-with-resource语句
+2. **指定具体的异常：**尽可能的使用最具体的异常来声明方法，这样才能使得代码更容易理解
+3. **对异常进行文档说明**：当在方法上声明抛出异常时，也需要进行文档说明
+4. **抛出异常的时候包含描述信息**：在抛出异常时，需要尽可能精确地描述问题和相关信息
+5. **首先捕获最具体的异常**
+6. **不要捕获Throwable**
+7. **不要忽略异常**：如catch了异常不处理
+8. **不要记录并抛出异常**：不要捕获异常、记录日志并再次抛出
+9. **包装异常时不要抛弃原始的异常**
+
 参考链接：https://yq.aliyun.com/articles/762814
 
 ---
@@ -157,7 +167,7 @@ PersonFactory<Person> personFactory = Person::new; //构造函数
 
 **5. 提供更多内置函数式接口**
 
-Predicate、Function、Supplier、Consumer、Consumer
+Predicate、Function、Supplier、Consumer
 
 **6. Optional**
 
@@ -167,7 +177,7 @@ Predicate、Function、Supplier、Consumer、Consumer
 
 - `java.util.Stream` 表示能应用在一组元素上一次执行的操作序列。
 
-- Stream 操作分为中间操作或者最终操作两种，最终操作返回一特定类型的计算结果，而中间操作返回Stream本身，这样你就可以将多个操作依次串起来。
+- Stream 操作分为**中间操作**或者**最终操作**两种，最终操作返回一特定类型的计算结果，而中间操作返回Stream本身，这样你就可以将多个操作依次串起来。
 
 - Stream 的创建需要指定一个数据源，比如` java.util.Collection` 的子类，List 或者 Set， Map 不支持。
 
@@ -248,7 +258,7 @@ https://blog.csdn.net/yczz/article/details/50896975
 
 ##### String不可变的原理是什么？为什么要设计成不可变的？ 
 
- char数组用final修饰的；如果可变，字符串常量池引用会混乱；String缓存了自己的hash，如果可变，但是hash不会变，在HashMap、HashSet中会出现问题；String经常用作参数，如果可变则不安全。
+ 用final修饰的数组；如果可变，字符串常量池引用会混乱；String缓存了自己的hash，如果可变，但是hash不会变，在HashMap、HashSet中会出现问题；String经常用作参数，如果可变则不安全。
 
 1. **字符串常量池的需要：**可能存在多个String对象，引用了同一个常量池中的对象。如果修改其中一个，可能会影响另一个，造成逻辑混乱
 2. **String对象缓存了HashCode**：String是不可变的，保证了hashcode的唯一性，于是在创建对象时其hashcode就可以放心的缓存了，不需要重新计算。这也就是Map喜欢将String作为Key的原因，处理速度要快过其它的键对象。
@@ -264,13 +274,73 @@ https://blog.csdn.net/renfufei/article/details/16808775
 
 ---
 
-#### 怎么实现深拷贝（待整理）
+#### 怎么实现深拷贝
 
 **1. 构造函数**
 
+我们可以通过在调用构造函数进行深拷贝，形参如果是基本类型和字符串则直接赋值，如果是对象则重新new一个。
+
+**优点**：底层实现简单；不需要引入第三方包；系统开销小
+
+缺点：可用性较差，每次新增成员变量，都要增加新的拷贝构造函数
+
+```java
+Address address = new Address("杭州", "中国");
+User user = new User("大山", address);
+
+// 调用构造函数时进行深拷贝
+User copyUser = new User(user.getName(), new Address(address.getCity(), address.getCountry()));
+```
+
 **2. 重写clone方法，实现Cloneable**
 
+**优点**：底层实现简单；不需要引入第三方包；系统开销小
+
+**缺点**：可用性较差，每次新增成员变量可能要修改clone方法；拷贝类需要实现cloneable接口
+
+```java
+ public class Address implements Cloneable {
+ 
+    private String city;
+    private String country;
+ 
+    // constructors, getters and setters
+ 
+    @Override
+    public Address clone() throws CloneNotSupportedException {
+        return (Address) super.clone();
+    }
+ 
+}
+
+public class User implements Cloneable {
+ 
+    private String name;
+    private Address address;
+ 
+    // constructors, getters and setters
+ 
+    @Override
+    public User clone() throws CloneNotSupportedException {
+        User user = (User) super.clone();
+        user.setAddress(this.address.clone());
+        return user;
+    }
+ 
+}
+```
+
 **3. 序列化和反序列化**
+
+我们可以先将源对象进行序列化，再反序列化生成拷贝对象，前提是拷贝的类（包括其成员变量）需要实现Serializable接口
+
+**缺点**：序列化与反序列化存在一定的系统开销
+
+**4. 反射**
+
+[反射实现深拷贝实例](https://blog.csdn.net/qq_38598257/article/details/85123817)
+
+
 
 [多种深拷贝实现方式整理](https://www.cnblogs.com/xinruyi/p/11537963.html)
 
@@ -303,8 +373,6 @@ HashMap的长度为2的幂次方时，等式**hash % n =（n-1）& hash** 成立
 - java6、7默认是返回随机数
 - java8默认是通过和当前线程有关的一个随机数+三个确定值，运用Marsaglia’s xorshift scheme随机数算法得到的一个随机数
 
-OpenJDK8 默认hashCode的计算方法是通过和当前线程有关的一个随机数+三个确定值，运用**Marsaglia's xor-shift scheme**随机数算法得到的一个随机数。和对象内存地址无关。
-
 https://juejin.cn/post/6844903487432556551
 
 ---
@@ -315,7 +383,7 @@ https://juejin.cn/post/6844903487432556551
 //String类的实现
 private final char value[];
 
-//遍历字符数中的每个志
+//遍历字符数中的每个字符
 public int hashCode() {
     int h = hash;
     if (h == 0 && value.length > 0) {

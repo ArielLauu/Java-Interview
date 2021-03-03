@@ -312,17 +312,15 @@ protected Class<?> findClass(String name) throws ClassNotFoundException {
 }
 ```
 
-==打破双亲委派机制原理，以及常用场景== （待整理）
+---
+
+#### 打破双亲委派机制原理，以及常用场景（待整理）
 
 常用场景：Tomcat https://www.jianshu.com/p/7706a42ba200
-
-有哪些类加载器 ， 能否自定义 Java.Object.String 的类加载器 
 
 .启动一个java程序的过程哪个类加载器会参与
 
 是否自己写过类加载器
-
-类加载讲类加载器（三种，如何定义用户加载器）
 
 ---
 
