@@ -179,6 +179,20 @@ https://www.zhihu.com/question/23641679?sort=created （里面涉及cglib动态�
 
 https://blog.csdn.net/john_lw/article/details/79539070
 
+[深入理解JDK动态代理机制](https://www.jianshu.com/p/471c80a7e831)
+
+[CGlib动态代理分析](https://www.cnblogs.com/cruze/p/3865180.html)
+
+---
+
+#### CGlib怎么操作字节码
+
+代理类对象是由**Enhancer**类创建的。Enhancer是CGLIB的字节码增强器，可以很方便的对类进行拓展
+
+在CGLIB底层，其实是借助了ASM这个非常强大的Java字节码生成框架
+
+**ASM是怎么操作字节码的**： [Java字节码处理框架ASM设计思想解析]( https://www.jianshu.com/p/26e99d39b3fb) [CGlib字节码](https://www.jianshu.com/p/a728dac249e1)
+
 ---
 
 #### AspectJ 原理（待整理)
